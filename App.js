@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, StyleSheet, Image, Text, Pressable } from "react-native";
+import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -30,18 +30,24 @@ export default function App() {
             <Image source={item} style={styles.image} />
           )}
           sliderWidth={500}
-          sliderHeight={500}
           itemWidth={400}
-          itemHeight={400}
           onSnapToItem={(index) => setImageIndex(index)}
         />
       </View>
-      <Pressable onPress={prevImageHandler} style={styles.arrowButton}>
-        <Ionicons name="heart" size={18} color="black" />
-      </Pressable>
-      <Pressable onPress={nextImageHandler} style={styles.arrowButton}>
-        <Ionicons name="heart" size={18} color="black" />
-      </Pressable>
+      <TouchableOpacity
+        onPress={prevImageHandler}
+        style={[styles.arrowButton, { right: 20 }]}
+        disabled={imageIndex === images.length - 1}
+      >
+        <Ionicons name="arrow-forward" size={40} color="red" />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={nextImageHandler}
+        style={[styles.arrowButton, { left: 20 }]}
+        disabled={imageIndex === 0}
+      >
+        <Ionicons name="arrow-back" size={40} color="red" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -55,18 +61,19 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 28,
     fontWeight: "bold",
+    marginBottom: 12,
   },
   carouselContainer: {
-    width: "80%",
+    width: "115%",
     height: 200,
   },
   image: {
-    width: "100%",
+    width: "90%",
     height: "100%",
     resizeMode: "cover",
   },
   arrowButton: {
     position: "absolute",
-    top: "45%",
+    top: "50%",
   },
 });
