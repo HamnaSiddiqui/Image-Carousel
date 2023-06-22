@@ -7,14 +7,14 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  Pressable,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function App() {
   const { width, height } = Dimensions.get("window");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // const onViewRef = useRef(({ changed }: { changed: any }) => {if(changed[0], isViewable)});
+  const ref = useRef();
 
   const images = [
     require("./assets/1.jpg"),
@@ -25,27 +25,32 @@ export default function App() {
   function nextImageHandler() {
     console.log("Going to next");
     setCurrentImageIndex(currentImageIndex + 1);
+    ref.current.scrollToIndex({
+      animated: true,
+      index: parseInt(currentImageIndex) + 1,
+    });
     console.log("NEXT", currentImageIndex);
   }
 
   function prevImageHandler() {
     console.log("going to prev");
     setCurrentImageIndex(currentImageIndex - 1);
+    ref.current.scrollToIndex({
+      animated: true,
+      index: parseInt(currentImageIndex) - 1,
+    });
     console.log("PREV", currentImageIndex);
-  }
-  function onPressHandler() {
-    console.log("pressed");
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Image Carousel</Text>
       <View style={styles.listContainer}>
-        <FlatList
+        <Animated.FlatList
           data={images}
           renderItem={({ item }) => {
             return (
-              <TouchableOpacity onPress={onPressHandler} activeOpacity={1}>
+              <TouchableOpacity activeOpacity={1}>
                 <Image source={item} style={styles.image} />
               </TouchableOpacity>
             );
@@ -54,33 +59,40 @@ export default function App() {
           horizontal
           showsHorizontalScrollIndicator={true}
           pagingEnabled
+          ref={ref}
           style={styles.carousel}
         />
       </View>
-      <Pressable
-        onPress={nextImageHandler}
-        style={[styles.arrowButton, { right: 20 }]}
-        disabled={currentImageIndex === images.length - 1}
-      >
-        <Ionicons
-          name="arrow-forward"
-          size={40}
-          color="red"
-          onPress={nextImageHandler}
-        />
-      </Pressable>
-      <Pressable
-        onPress={prevImageHandler}
-        style={[styles.arrowButton, { left: 20 }]}
-        disabled={currentImageIndex === 0}
-      >
-        <Ionicons
-          name="arrow-back"
-          size={40}
-          color="red"
-          onPress={prevImageHandler}
-        />
-      </Pressable>
+      <Animated.View>
+        {currentImageIndex == 0 ? null : (
+          <TouchableOpacity
+            onPress={nextImageHandler}
+            style={[styles.arrowButton, { right: 20 }]}
+            disabled={currentImageIndex === images.length - 1}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={40}
+              color="red"
+              onPress={prevImageHandler}
+            />
+          </TouchableOpacity>
+        )}
+        {images.length - 1 == currentImageIndex ? null : (
+          <TouchableOpacity
+            onPress={prevImageHandler}
+            style={[styles.arrowButton, { left: 20 }]}
+            disabled={currentImageIndex === 0}
+          >
+            <Ionicons
+              name="arrow-forward"
+              size={40}
+              color="red"
+              onPress={nextImageHandler}
+            />
+          </TouchableOpacity>
+        )}
+      </Animated.View>
     </View>
   );
 }
