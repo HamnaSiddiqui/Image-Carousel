@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
-import Carousel from "react-native-snap-carousel";
+import { useState, useRef } from "react";
+import {
+  View,
+  Dimensions,
+  StyleSheet,
+  Image,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Pressable,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function App() {
-  const [imageIndex, setImageIndex] = useState(0);
+  const { width, height } = Dimensions.get("window");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // const onViewRef = useRef(({ changed }: { changed: any }) => {if(changed[0], isViewable)});
 
   const images = [
     require("./assets/1.jpg"),
@@ -13,46 +23,73 @@ export default function App() {
   ];
 
   function nextImageHandler() {
-    setImageIndex((prevImageIndex) => prevImageIndex + 1);
+    console.log("Going to next");
+    setCurrentImageIndex(currentImageIndex + 1);
+    console.log("NEXT", currentImageIndex);
   }
 
   function prevImageHandler() {
-    setImageIndex((prevImageIndex) => prevImageIndex - 1);
+    console.log("going to prev");
+    setCurrentImageIndex(currentImageIndex - 1);
+    console.log("PREV", currentImageIndex);
+  }
+  function onPressHandler() {
+    console.log("pressed");
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Image Carousel</Text>
-      <View style={styles.carouselContainer}>
-        <Carousel
+      <View style={styles.listContainer}>
+        <FlatList
           data={images}
-          renderItem={({ item }) => (
-            <Image source={item} style={styles.image} />
-          )}
-          sliderWidth={500}
-          itemWidth={400}
-          onSnapToItem={(index) => setImageIndex(index)}
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity onPress={onPressHandler} activeOpacity={1}>
+                <Image source={item} style={styles.image} />
+              </TouchableOpacity>
+            );
+          }}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={true}
+          pagingEnabled
+          style={styles.carousel}
         />
       </View>
-      <TouchableOpacity
-        onPress={prevImageHandler}
-        style={[styles.arrowButton, { right: 20 }]}
-        disabled={imageIndex === images.length - 1}
-      >
-        <Ionicons name="arrow-forward" size={40} color="red" />
-      </TouchableOpacity>
-      <TouchableOpacity
+      <Pressable
         onPress={nextImageHandler}
-        style={[styles.arrowButton, { left: 20 }]}
-        disabled={imageIndex === 0}
+        style={[styles.arrowButton, { right: 20 }]}
+        disabled={currentImageIndex === images.length - 1}
       >
-        <Ionicons name="arrow-back" size={40} color="red" />
-      </TouchableOpacity>
+        <Ionicons
+          name="arrow-forward"
+          size={40}
+          color="red"
+          onPress={nextImageHandler}
+        />
+      </Pressable>
+      <Pressable
+        onPress={prevImageHandler}
+        style={[styles.arrowButton, { left: 20 }]}
+        disabled={currentImageIndex === 0}
+      >
+        <Ionicons
+          name="arrow-back"
+          size={40}
+          color="red"
+          onPress={prevImageHandler}
+        />
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  listContainer: {
+    marginHorizontal: 8,
+    overflow: "hidden",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -63,14 +100,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 12,
   },
-  carouselContainer: {
-    width: "115%",
-    height: 200,
+  carousel: {
+    maxHeight: 300,
   },
   image: {
-    width: "90%",
-    height: "100%",
+    width: 380,
+    height: 270,
     resizeMode: "cover",
+    marginVertical: 20,
+    marginHorizontal: 6,
   },
   arrowButton: {
     position: "absolute",
